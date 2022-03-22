@@ -1,13 +1,12 @@
-//#include <ESP8266WiFi.h>
-//#include <Wire.h>
 #include <OneWire.h>
 #include <DallasTemperature.h>
+
+bool DEBUG = false;
 
 // Setup temperature probes
 #define ONE_WIRE_BUS 21
 OneWire oneWire(ONE_WIRE_BUS);
 DallasTemperature sensors(&oneWire);
-//sensors.begin();
 DeviceAddress sensor1 = {0x28, 0x60, 0x2E, 0x49, 0xF6, 0x9F, 0x3C, 0x6E};
 DeviceAddress sensor2 = {0x28, 0xE9, 0x52, 0x96, 0xF0, 0x1,0x3C, 0xB};
 
@@ -16,24 +15,24 @@ DeviceAddress sensor2 = {0x28, 0xE9, 0x52, 0x96, 0xF0, 0x1,0x3C, 0xB};
 //const int analogInPin2 = 32; //Pin 7 onboard
 const int probeOneMax = 2600; // Max ADC output of probe
 const int probeOneMin = 1050; // Min ADC output of probe
-int sensorValue = 0;  // value read from the pot
-float Moisture;
+int sensorValue = 0;  // value read from the moisture probe
+float Moisture = 0; // Normalized value
 
 void setup() {
   // initialize serial communication at 115200
   Serial.begin(115200);
   sensors.begin();
-
- // DS18B20.begin();
 }
 
 void loop() {
   // read the analog in value
 sensorValue = analogRead(analogInPin1);
 
-// print the readings in the Serial Monitor
+// print the readings in the ADC
+if (DEBUG) {
 Serial.print("sensor = ");
 Serial.println(sensorValue);
+}
 Moisture = (1.0 - ((float(sensorValue) - probeOneMin)/(probeOneMax - probeOneMin)))*100.0; //Calibration equation 
 Serial.print("MoisturePercentage: ");
 Serial.println(Moisture);
