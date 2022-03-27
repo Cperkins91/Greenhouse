@@ -5,9 +5,9 @@
 #include <Wire.h>
 #include "DHT.h"
 
-#define DHTTYPE DHT11
+#define DHTTYPE DHT21
 #define DHTPIN 13 //D7 onboard
-DHT dht(DHTPIN,DHTTYPE);
+DHT dht(DHTPIN,DHTTYPE,30);
 BH1750 lightMeter;
 void wifiConnect();
 void mqttConnect();
