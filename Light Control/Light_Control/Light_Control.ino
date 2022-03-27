@@ -1,11 +1,11 @@
  #include <ESP8266WiFi.h>
  #include <PubSubClient.h>
  #include <String.h>
- #define relay 5
+ #define relay 5 //D1
  String message="";
  bool flag = false;
  bool DEBUG = false;
- const char* MqttTopic = "Fan Control_TEST";
+ 
  
 void callback(char* topic, byte* payload, unsigned int length) {
  
@@ -16,24 +16,25 @@ void callback(char* topic, byte* payload, unsigned int length) {
   for (int i = 0; i < length; i++) {
     Serial.print((char)payload[i]);
     message = message + (char)payload[i];
-    flag = true;
+    flag = true; // flip flag to true allowing light control conditional to pass. This means the light will only change when there is a NEW message.
   }
  
   Serial.println();
   Serial.println("-----------------------");
 }
-
+void TestConnection();
 void wifiConnect();
 void mqttConnect();
-
+// Wifi Settings
   const char* ssid = "memashouse";
   const char* password = "Hobart10";
-
+  
+//MQTT Settings
   const char* mqttServer = "192.168.1.249";
   const int mqttPort = 1883;
   const char* mqttUser = "ESP_LIGHT_CONTROLLER";
   const char* mqttPassword = "";
-
+  const char* MqttTopic = "Light_Control";
   WiFiClient espClient;
   PubSubClient client(espClient);
 
@@ -53,16 +54,16 @@ void loop() {
   Serial.print("Testing for message data:");
   Serial.println(message);
   }
-  Test_connection();
+  TestConnection();
   if (message == "ON" && flag == true) {
     Serial.println("Turned on the light");
     digitalWrite(relay, HIGH);
-    flag  = false;
+    flag  = false; //flag will flip during callback function
     message = "";
   }
   else if (message == "OFF" && flag == true) {
     Serial.println("Turned off the lights");
-    flag = false;
+    flag = false; //flag will flip during callback function
     digitalWrite(relay, LOW);
     message = "";
   }   
@@ -97,7 +98,7 @@ void mqttConnect() { //Initiate MQTT Server Connection
     }
 }
 
-void Test_Connection() { //Check for connection loss and reconnect if so
+void TestConnection() { //Check for connection loss and reconnect if so
       if (WiFi.status() != WL_CONNECTED) {
         Serial.println("WiFi connection lost");
         wifiConnect();
