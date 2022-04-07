@@ -11,41 +11,42 @@ DHT dht(DHTPIN,DHTTYPE,30);
 BH1750 lightMeter;
 void wifiConnect();
 void mqttConnect();
+void testConnection();
 void callback(char* topic, byte* payload, unsigned int length);
 
-//Debug
-const bool DEBUG = true;
-
-//Wifi setup
-const char* ssid = "memashouse";
-const char* password = "Hobart10";
-
-//MQTT server setup
-const char* mqttServer = "192.168.1.249";
-const int mqttPort = 1883;
-const char* mqttUser = "ESP_1";
-const char* mqttPassword = "";
-
-//Soil Moisture Setup
-const int analogInPin = A0;
-
-WiFiClient espClient;
-PubSubClient client(espClient);
-
-
-//Variables for publishing
-char luxChar[50] ;
-char tempChar[50];
-String tempString;
-
-unsigned long StartTime = millis(); //Start time used to calculate when to publish
-
-// Moisture meter variables
-float Moisture;
-int sensorValue = 0;
-
-//Light Variable
-float lux;
+  //Debug
+  const bool DEBUG = true;
+  
+  //Wifi setup
+  const char* ssid = "memashouse";
+  const char* password = "Hobart10";
+  
+  //MQTT server setup
+  const char* mqttServer = "192.168.1.249";
+  const int mqttPort = 1883;
+  const char* mqttUser = "ESP_1";
+  const char* mqttPassword = "";
+  
+  //Soil Moisture Setup
+  const int analogInPin = A0;
+  
+  WiFiClient espClient;
+  PubSubClient client(espClient);
+  
+  
+  //Variables for publishing
+  char luxChar[50] ;
+  char tempChar[50];
+  String tempString;
+  
+  unsigned long StartTime = millis(); //Start time used to calculate when to publish
+  
+  // Moisture meter variables
+  float Moisture;
+  int sensorValue = 0;
+  
+  //Light Variable
+  float lux;
 void setup() {
 // put your setup code here, to run once:
     Serial.begin(9600);
@@ -59,16 +60,8 @@ void setup() {
 }
 
 void loop() {
-    // put your main code here, to run repeatedly:
-    if (WiFi.status() != WL_CONNECTED) {
-        Serial.println("WiFi connection lost");
-        wifiConnect();
-    }
-    if (!client.connected()){ //check for connection loss
-        Serial.println("Connection to MQTT Broker interrupted \n Attempting to Reconnect... ");
-        mqttConnect();
-    } //check for connection loss
 
+  testConnection();
     if (millis() - StartTime > 10000 || millis()-StartTime < 1){// Check for 10sec past and retrieve and publish data
         StartTime = millis();
         sendHumidity();
@@ -122,6 +115,18 @@ void mqttConnect() { //Initiate MQTT Server Connection
         }
     }
 }
+
+void testConnection() { //Check for connection loss and reconnect if so
+      if (WiFi.status() != WL_CONNECTED) {
+        Serial.println("WiFi connection lost");
+        wifiConnect();
+    }
+    if (!client.connected()){ //check for connection loss
+        Serial.println("Connection to MQTT Broker interrupted \n Attempting to Reconnect... ");
+        mqttConnect();
+    } //check for connection loss
+}
+
 void sendTempC (){
     tempString = String(dht.readTemperature());
     tempString.toCharArray(tempChar, tempString.length()+1);
@@ -143,7 +148,7 @@ void sendHumidity(){
 void sendLux(){
     tempString = String(lightMeter.readLightLevel());
     tempString.toCharArray(tempChar, tempString.length()+1); // Create Char array
-    client.publish("Lux_TEST" , tempChar);
+    client.publish("Lux_Indoors" , tempChar);
     if (DEBUG){
     Serial.print("Publishing Light Data (lux) " );
     Serial.println(tempChar);
