@@ -5,12 +5,11 @@
 #define Relay 4 //GPIO D2
 String message="";
 bool flag = false; //Flag so that only the irrigation only turns on once until the esp recieves another message
-bool DEBUG = true;
-const char* MqttTopic = "Irrigation Control";
+bool DEBUG = false;
 long StartTime = 0;
 
 void callback(char* topic, byte* payload, unsigned int length) { //Function to recieve MQTT messages
- 
+  message = "";
   Serial.print("Message arrived in topic: ");
   Serial.println(topic);
  
@@ -35,6 +34,7 @@ void mqttConnect();
   const int mqttPort = 1883;
   const char* mqttUser = "ESP_IRRIGATION_CONTROLLER";
   const char* mqttPassword = "";
+  const char* MqttTopic = "Irrigation Control";
 
   WiFiClient espClient;
   PubSubClient client(espClient);
@@ -52,7 +52,7 @@ void loop() {
   Serial.println("Entered loop");
  }
  Test_Connection();
- if (message == "ON" && flag == true){
+ if (message == "ON"){
   Serial.println("Irrigation turning on... \n Opening the solenoid");
   digitalWrite(Pump, HIGH);
   delay (1000);
@@ -81,10 +81,10 @@ void Test_Connection() { //Check for connection loss and reconnect if so
     Serial.println("WiFi connection lost");
     wifiConnect();
   }
-if (!client.connected()){ //check for connection loss
+  if (!client.connected()){ //check for connection loss
     Serial.println("Connection to MQTT Broker interrupted \n Attempting to Reconnect... ");
     mqttConnect();
-  } //check for connection loss
+  } 
 }
 void wifiConnect() {  //Establish WiFi Connection
   if (DEBUG){
@@ -106,7 +106,7 @@ void mqttConnect() { //Initiate MQTT Server Connection
   }
   while(!client.connected()){
     Serial.println("Connecting to MQTT...");
-    if (client.connect("ESP8266Client_Lights",mqttUser,mqttPassword)){
+    if (client.connect(mqttUser)){
       Serial.println("MQTT Connection Successful");
       client.subscribe(MqttTopic);
      }

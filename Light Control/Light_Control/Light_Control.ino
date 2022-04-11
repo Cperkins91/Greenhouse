@@ -111,7 +111,7 @@ void callback(char* topic, byte* payload, unsigned int length) {
 void mqttConnect() { //Initiate MQTT Server Connection
     while(!client.connected()){
         Serial.println("Connecting to MQTT...");
-        if (client.connect("ESP8266Client_Lights",mqttUser,mqttPassword)){
+        if (client.connect(mqttUser)){
             Serial.println("MQTT Connection Successful");
             client.subscribe(MqttTopic);
 
@@ -129,8 +129,9 @@ void testConnection() { //Check for connection loss and reconnect if so
         Serial.println("WiFi connection lost");
         wifiConnect();
     }
-    if (!client.connected()){ //check for connection loss
+      if (!client.connected()){ //check for connection loss
         Serial.println("Connection to MQTT Broker interrupted \n Attempting to Reconnect... ");
+        Serial.println(client.connected());
         mqttConnect();
     } //check for connection loss
 }
