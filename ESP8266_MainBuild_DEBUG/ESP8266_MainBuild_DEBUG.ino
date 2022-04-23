@@ -1,3 +1,12 @@
+/* Created by Christopher Perkins
+ *  4/20/2022
+ *  This code is used to program an ESP 8266 to build an ambient sensor suite. 
+ *  In this form it will connect to the local wifi, establish an mqtt session,
+ *  and read a BH1750 and DHT21 sensor. After reading it will publish the readings
+ *  to the mqtt broker under discrete topics. The loop function will test the WiFi and MQTT connection, 
+ *  check for amount of time passed since the last measurment, and if past the Period set, it will take
+ *  a new measurement and publish it the the respective topic.
+ */
 #include <ESP8266WiFi.h>
 #include <PubSubClient.h>
 #include <String.h>
@@ -40,7 +49,7 @@ void callback(char* topic, byte* payload, unsigned int length);
   String tempString;
   
   unsigned long StartTime = millis(); //Start time used to calculate when to publish
-  
+  int Period = 10000; // set this to the length between each publication you want. (In milliseconds)
   // Moisture meter variables
   float Moisture;
   int sensorValue = 0;
@@ -62,7 +71,7 @@ void setup() {
 void loop() {
 
   testConnection();
-    if (millis() - StartTime > 10000 || millis()-StartTime < 1){// Check for 10sec past and retrieve and publish data
+    if (millis() - StartTime > Period || millis()-StartTime < 1){// Check for 10sec past and retrieve and publish data
         StartTime = millis();
         sendHumidity();
         sendLux();

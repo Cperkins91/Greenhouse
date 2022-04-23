@@ -1,3 +1,15 @@
+/* Created by Christopher Perkins
+ *  4/20/2022
+ *  This code is used to program an ESP 8266 to build an a Irrigation Controller. 
+ *  In this form it will connect to the local wifi, establish an mqtt session,
+ *  and and check for messages on the given MQTT topic. The loop function will test 
+ *  the WiFi and MQTT connection, and wait for a message. If the ESP recieves a 
+ *  message it will save it to the message string and check it in the loop. If
+ *  it is the ON message it will enter the irrigation control conditional. Inside the conditonal,
+ *  the ESP will first turn on the pump
+ *  and return to the loop.
+ */
+ 
  #include <ESP8266WiFi.h>
  #include <PubSubClient.h>
  #include <String.h>
@@ -7,7 +19,7 @@ String message="";
 bool flag = false; //Flag so that only the irrigation only turns on once until the esp recieves another message
 bool DEBUG = false;
 long StartTime = 0;
-
+int IrrigationLength = 15000;
 void callback(char* topic, byte* payload, unsigned int length) { //Function to recieve MQTT messages
   message = "";
   Serial.print("Message arrived in topic: ");
@@ -53,12 +65,12 @@ void loop() {
  }
  Test_Connection();
  if (message == "ON"){
-  Serial.println("Irrigation turning on... \n Opening the solenoid");
+  Serial.println("Irrigation turning on... \n Turning on the pump");
   digitalWrite(Pump, HIGH);
   delay (1000);
   StartTime = millis();
-  Serial.println("Turning on the pump");
-  while (millis() - StartTime < 15000 && message == "ON") {
+  Serial.println("Opening the solenoid");
+  while (millis() - StartTime < IrrigationLength && message == "ON") {
     digitalWrite(Relay,HIGH);
     digitalWrite(Pump, HIGH);
     yield(); //Must yield to reset watchdog timer so it doesn't reset ESP

@@ -1,3 +1,15 @@
+/* Created by Christopher Perkins
+ *  4/20/2022
+ *  This code is used to program an ESP 8266 to build an ambient sensor suite. 
+ *  In this form it will connect to the local wifi, establish an mqtt session,
+ *  and and check for messages on the given MQTT topic as well as publish light 
+ *  values to the broker. The loop function will test the WiFi and MQTT connection, 
+ *  check for amount of time passed since the last measurment, and if past the Period set, it will take
+ *  a new measurement and publish it the the respective topic. If the ESP recieves a 
+ *  message it will save it to the message string and check it in the loop. If
+ *  it is the ON message it will enter the light control conditional. Then turn the relay on 
+ *  and return to the loop.
+ */
 #include <ESP8266WiFi.h>
 #include <PubSubClient.h>
 #include <String.h>
@@ -97,12 +109,13 @@ void callback(char* topic, byte* payload, unsigned int length) {
  
   Serial.print("Message arrived in topic: ");
   Serial.println(topic);
- 
+  message  = "";
   Serial.print("Message:");
   for (int i = 0; i < length; i++) {
     Serial.print((char)payload[i]);
     message = message + (char)payload[i];
-    flag = true; // flip flag to true allowing light control conditional to pass. This means the light will only change when there is a NEW message.
+    flag = true; // flip flag to true allowing light control conditional to pass. 
+                 //This means the light will only change when there is a NEW message.
   }
  
   Serial.println();
