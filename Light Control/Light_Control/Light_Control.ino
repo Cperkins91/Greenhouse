@@ -1,6 +1,6 @@
 /* Created by Christopher Perkins
  *  4/20/2022
- *  This code is used to program an ESP 8266 to build an ambient sensor suite. 
+ *  This code is used to program an ESP 8266 to build an Light Controller. 
  *  In this form it will connect to the local wifi, establish an mqtt session,
  *  and and check for messages on the given MQTT topic as well as publish light 
  *  values to the broker. The loop function will test the WiFi and MQTT connection, 

@@ -6,8 +6,10 @@
  *  the WiFi and MQTT connection, and wait for a message. If the ESP recieves a 
  *  message it will save it to the message string and check it in the loop. If
  *  it is the ON message it will enter the irrigation control conditional. Inside the conditonal,
- *  the ESP will first turn on the pump
- *  and return to the loop.
+ *  the ESP will first turn on the pump, wait 1 sec, open the solenoid, then 
+ *  wait for the specified amount of time, close the solenoid, wait 250ms, and close the 
+ *  pump. The 1 second delay is so that inrush current between the pump and solenoid occur at slightly different 
+ *  times. The is to reduce stress on the PCB traces.
  */
  
  #include <ESP8266WiFi.h>
